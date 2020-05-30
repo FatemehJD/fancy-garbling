@@ -52,9 +52,23 @@ impl GarbledCircuit {
         c.process_outputs(&outputs, &mut evaluator)?;
         evaluator.decode_output()
     }
+
+    /// Evaluate the garbled circuit and return output labels
+    pub fn eval_labels(
+        &self,
+        c: &mut Circuit,
+        garbler_inputs: &[Wire],
+        evaluator_inputs: &[Wire],
+    ) -> Result<Vec<Wire>, EvaluatorError> {
+        let channel = Channel::new(GarbledReader::new(&self.blocks), GarbledWriter::new(None));
+        let mut evaluator = Evaluator::new(channel);
+        let outputs = c.eval(&mut evaluator, garbler_inputs, evaluator_inputs)?;
+        c.process_outputs(&outputs, &mut evaluator)?;
+        Ok(outputs)
+    }
 }
 
-/// Garble a circuit without streaming.
+/// Garble a circuit without streaming. 
 pub fn garble(c: &mut Circuit) -> Result<(Encoder, GarbledCircuit), GarblerError> {
     let channel = Channel::new(
         GarbledReader::new(&[]),
@@ -98,6 +112,106 @@ pub fn garble(c: &mut Circuit) -> Result<(Encoder, GarbledCircuit), GarblerError
     Ok((en, gc))
 }
 
+/// Garble a circuit without streaming and return the output labels
+pub fn garble_out(c: &mut Circuit) -> Result<((Encoder, GarbledCircuit), Vec<Wire>), GarblerError> {
+    let channel = Channel::new(
+        GarbledReader::new(&[]),
+        GarbledWriter::new(Some(c.num_nonfree_gates)),
+    );
+    let channel_ = channel.clone();
+
+    let rng = AesRng::new();
+    let mut garbler = Garbler::new(channel_, rng, &[]);
+
+    // get input wires, ignoring encoded values
+    let gb_inps = (0..c.num_garbler_inputs())
+        .map(|i| {
+            let q = c.garbler_input_mod(i);
+            let (zero, _) = garbler.encode_wire(0, q);
+            zero
+        })
+        .collect_vec();
+
+    let ev_inps = (0..c.num_evaluator_inputs())
+        .map(|i| {
+            let q = c.evaluator_input_mod(i);
+            let (zero, _) = garbler.encode_wire(0, q);
+            zero
+        })
+        .collect_vec();
+
+    let outputs = c.eval(&mut garbler, &gb_inps, &ev_inps)?;
+
+    c.process_outputs(&outputs, &mut garbler)?;
+
+    let en = Encoder::new(gb_inps, ev_inps, garbler.get_deltas());
+
+    let gc = GarbledCircuit::new(
+        Rc::try_unwrap(channel.writer())
+            .unwrap()
+            .into_inner()
+            .blocks,
+    );
+
+    Ok(((en, gc), outputs))
+}
+
+/// Garbles a circuit whose input labels are the output of another circuit
+pub fn garble_chain(
+    c: &mut Circuit,
+    garbler_inputs: Vec<Wire>,
+    eval_inputs: Vec<Wire>,
+    deltas: &[Wire],
+) -> Result<(Encoder, GarbledCircuit), GarblerError> {
+    let channel = Channel::new(
+        GarbledReader::new(&[]),
+        GarbledWriter::new(Some(c.num_nonfree_gates)),
+    );
+    let channel_ = channel.clone();
+
+    let rng = AesRng::new();
+    let mut garbler = Garbler::new(channel_, rng, deltas);
+
+    // The initial input wires are taken from the provided 
+    // vectors. The rest are randomly generated
+    let mut gb_inps = garbler_inputs;
+    gb_inps.extend(
+        (gb_inps.len()..c.num_garbler_inputs())
+            .map(|i| {
+                let q = c.garbler_input_mod(i);
+                let (zero, _) = garbler.encode_wire(0, q);
+                zero
+            })
+            .collect_vec()
+    );
+
+    let mut ev_inps = eval_inputs;
+    ev_inps.extend(
+        (ev_inps.len()..c.num_evaluator_inputs())
+            .map(|i| {
+                let q = c.evaluator_input_mod(i);
+                let (zero, _) = garbler.encode_wire(0, q);
+                zero
+            })
+            .collect_vec()
+    );
+
+    let outputs = c.eval(&mut garbler, &gb_inps, &ev_inps)?;
+
+    c.process_outputs(&outputs, &mut garbler)?;
+
+    let en = Encoder::new(gb_inps, ev_inps, garbler.get_deltas());
+
+    let gc = GarbledCircuit::new(
+        Rc::try_unwrap(channel.writer())
+            .unwrap()
+            .into_inner()
+            .blocks,
+    );
+
+    Ok((en, gc))
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 // Encoder
 
@@ -123,6 +237,11 @@ impl Encoder {
             evaluator_inputs,
             deltas,
         }
+    }
+
+    /// Get wire deltas
+    pub fn get_deltas(&self) -> HashMap<u16, Wire> {
+        self.deltas.clone()
     }
 
     /// Output the number of garbler inputs.
