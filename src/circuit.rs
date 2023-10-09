@@ -126,7 +126,6 @@ impl Circuit {
         garbler_inputs: &[F::Item],
         evaluator_inputs: &[F::Item],
     ) -> Result<Vec<F::Item>, F::Error> {
-        println!("here before deocode here in circuit.rs");
         let mut cache: Vec<Option<F::Item>> = vec![None; self.gates.len()];
         for (i, gate) in self.gates.iter().enumerate() {
             let q = self.modulus(i);
