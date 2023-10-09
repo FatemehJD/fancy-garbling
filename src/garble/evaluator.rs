@@ -48,6 +48,7 @@ impl<C: AbstractChannel> Evaluator<C> {
                 }
             }
         }
+        println!("here in decode ouput function, left: {:?}, right:{:?}", self.output_wires.len(), outs.len());
         if self.output_wires.len() != outs.len() {
             return Err(EvaluatorError::DecodingFailed);
         }
