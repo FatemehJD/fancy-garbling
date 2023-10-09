@@ -40,6 +40,7 @@ impl<C: AbstractChannel> Evaluator<C> {
         for i in 0..self.output_wires.len() {
             let q = self.output_wires[i].modulus();
             debug_assert_eq!(q as usize, self.output_cts[i].len());
+            println!("here in for loop i is: {:?}, q: {:?}", i, q);
             for k in 0..q {
                 let h = self.output_wires[i].hash(output_tweak(i, k));
                 if h == self.output_cts[i][k as usize] {
