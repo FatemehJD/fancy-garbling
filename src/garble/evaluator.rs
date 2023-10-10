@@ -170,6 +170,7 @@ impl<C: AbstractChannel> Fancy for Evaluator<C> {
 
     #[inline]
     fn output(&mut self, x: &Wire) -> Result<(), EvaluatorError> {
+        println!("here in evaluator");
         let noutputs = x.modulus() as usize;
         let mut blocks = Vec::with_capacity(noutputs);
         for _ in 0..noutputs {
