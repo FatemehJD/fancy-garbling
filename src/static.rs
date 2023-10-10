@@ -51,7 +51,6 @@ impl GarbledCircuit {
         let mut evaluator = Evaluator::new(channel);
         let outputs = c.eval(&mut evaluator, garbler_inputs, evaluator_inputs)?;
         c.process_outputs(&outputs, &mut evaluator)?;
-        println!("here before deocode");
         evaluator.decode_output()
     }
 
