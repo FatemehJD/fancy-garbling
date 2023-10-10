@@ -42,14 +42,12 @@ impl<C: AbstractChannel> Evaluator<C> {
             debug_assert_eq!(q as usize, self.output_cts[i].len());
             for k in 0..q {
                 let h = self.output_wires[i].hash(output_tweak(i, k));
-                println!("here in for loop i is: {:?}, h: {:?}, right side in if: {:?}", i, h, self.output_cts[i][k as usize]);
                 if h == self.output_cts[i][k as usize] {
                     outs.push(k);
                     break;
                 }
             }
         }
-        println!("here in decode ouput function, left: {:?}, right:{:?}", self.output_wires.len(), outs.len());
         if self.output_wires.len() != outs.len() {
             return Err(EvaluatorError::DecodingFailed);
         }
