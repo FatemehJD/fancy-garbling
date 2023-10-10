@@ -74,7 +74,6 @@ pub fn garble(c: &mut Circuit) -> Result<(Encoder, GarbledCircuit), GarblerError
         GarbledReader::new(&[]),
         GarbledWriter::new(Some(c.num_nonfree_gates)),
     );
-    println!("channel in garbler: {:?}", Some(c.num_nonfree_gates));
     let channel_ = channel.clone();
 
     let rng = AesRng::new();
@@ -109,7 +108,6 @@ pub fn garble(c: &mut Circuit) -> Result<(Encoder, GarbledCircuit), GarblerError
             .into_inner()
             .blocks,
     );
-println!("channel in garbler at the end: {:?}", Some(c.num_nonfree_gates));
     Ok((en, gc))
 }
 
