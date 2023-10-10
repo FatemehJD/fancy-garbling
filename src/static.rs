@@ -46,6 +46,7 @@ impl GarbledCircuit {
         garbler_inputs: &[Wire],
         evaluator_inputs: &[Wire],
     ) -> Result<Vec<u16>, EvaluatorError> {
+        println!("evaluator channnel: {:?}", &self.blocks);
         let channel = Channel::new(GarbledReader::new(&self.blocks), GarbledWriter::new(None));
         let mut evaluator = Evaluator::new(channel);
         let outputs = c.eval(&mut evaluator, garbler_inputs, evaluator_inputs)?;
@@ -75,6 +76,7 @@ pub fn garble(c: &mut Circuit) -> Result<(Encoder, GarbledCircuit), GarblerError
         GarbledReader::new(&[]),
         GarbledWriter::new(Some(c.num_nonfree_gates)),
     );
+    println!("garbler channel: {:?}", Some(c.num_nonfree_gates));
     let channel_ = channel.clone();
 
     let rng = AesRng::new();
