@@ -109,6 +109,7 @@ pub fn garble(c: &mut Circuit) -> Result<(Encoder, GarbledCircuit), GarblerError
             .into_inner()
             .blocks,
     );
+    println!("garbler blocks: {:?}", gc);
     Ok((en, gc))
 }
 
