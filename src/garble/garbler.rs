@@ -336,7 +336,7 @@ impl<C: AbstractChannel, RNG: CryptoRng + RngCore> Fancy for Garbler<C, RNG> {
 
     #[inline]
     fn output(&mut self, X: &Wire) -> Result<(), GarblerError> {
-        println!("here in garbler);
+        println!("here in garbler");
         let q = X.modulus();
         let mut cts = Vec::with_capacity(q as usize);
         let i = self.current_output();
