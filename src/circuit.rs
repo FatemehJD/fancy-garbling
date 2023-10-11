@@ -218,6 +218,7 @@ impl Circuit {
     ) -> Result<(), F::Error> {
         for r in outputs.iter() {
             f.output(r)?;
+            println!("process output in circuit.rs, channel: {:?}", f.channel);
         }
         Ok(())
     }
