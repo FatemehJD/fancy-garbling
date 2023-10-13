@@ -71,6 +71,7 @@ impl<C: AbstractChannel, RNG: CryptoRng + RngCore> Garbler<C, RNG> {
     #[inline]
     pub fn send_wire(&mut self, wire: &Wire) -> Result<(), GarblerError> {
         self.channel.write_block(&wire.as_block())?;
+        self.channel.flush()?;
         Ok(())
     }
 
@@ -276,6 +277,7 @@ impl<C: AbstractChannel, RNG: CryptoRng + RngCore> Fancy for Garbler<C, RNG> {
 
         for block in gate.iter() {
             self.channel.write_block(block)?;
+            self.channel.flush()?;
         }
         Ok(X.plus_mov(&Y))
     }
@@ -330,6 +332,7 @@ impl<C: AbstractChannel, RNG: CryptoRng + RngCore> Fancy for Garbler<C, RNG> {
 
         for block in gate.iter() {
             self.channel.write_block(block)?;
+            self.channel.flush()?;
         }
         Ok(C)
     }
