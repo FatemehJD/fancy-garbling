@@ -347,6 +347,7 @@ impl<C: AbstractChannel, RNG: CryptoRng + RngCore> Fancy for Garbler<C, RNG> {
         for block in cts.iter() {
             self.channel.write_block(block)?;
         }
+        self.channel.flush()?;
         Ok(())
     }
 }
