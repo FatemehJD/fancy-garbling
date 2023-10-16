@@ -174,7 +174,6 @@ impl<C: AbstractChannel> Fancy for Evaluator<C> {
         for _ in 0..noutputs {
             let block = self.channel.read_block()?;
             blocks.push(block);
-            println!("eval recv block: {:?}", block);
         }
         self.output_cts.push(blocks);
         self.output_wires.push(x.clone());
