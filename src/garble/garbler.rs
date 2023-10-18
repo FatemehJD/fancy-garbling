@@ -350,10 +350,6 @@ impl<C: AbstractChannel, RNG: CryptoRng + RngCore> Fancy for Garbler<C, RNG> {
             println!("count: {:?}, garbler.rs send block: {:?}", count, block);
             count = count + 1;
         }
-        let temp = false;
-        println!("before sending {:?}", temp);
-        self.channel.write_bool(temp)?;
-        println!("after sending");
         Ok(())
     }
 }
