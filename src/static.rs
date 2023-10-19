@@ -46,7 +46,6 @@ impl GarbledCircuit {
         garbler_inputs: &[Wire],
         evaluator_inputs: &[Wire],
     ) -> Result<Vec<u16>, EvaluatorError> {
-        println!("here!");
         let channel = Channel::new(GarbledReader::new(&self.blocks), GarbledWriter::new(None));
         let mut evaluator = Evaluator::new(channel);
         let outputs = c.eval(&mut evaluator, garbler_inputs, evaluator_inputs)?;
