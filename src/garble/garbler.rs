@@ -344,6 +344,7 @@ impl<C: AbstractChannel, RNG: CryptoRng + RngCore> Fancy for Garbler<C, RNG> {
             let t = output_tweak(i, k);
             cts.push(X.plus(&D.cmul(k)).hash(t));
         }
+        println!("cts in garbler: {:?}", cts);
         for block in cts.iter() {
             self.channel.write_block(block)?;
         }
