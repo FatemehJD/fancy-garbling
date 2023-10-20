@@ -42,8 +42,8 @@ impl<C: AbstractChannel> Evaluator<C> {
             debug_assert_eq!(q as usize, self.output_cts[i].len());
             for k in 0..q {
                 let h = self.output_wires[i].hash(output_tweak(i, k));
-                println!("count: {:?}, output_wires_block: {:?}, hash: {:?}", i, self.output_wires[i], h);
-                println!("count: {:?}, output_cts: {:?}", i, self.output_cts[i][k as usize]);
+                //println!("count: {:?}, output_wires_block: {:?}, hash: {:?}", i, self.output_wires[i], h);
+                //println!("count: {:?}, output_cts: {:?}", i, self.output_cts[i][k as usize]);
                 if h == self.output_cts[i][k as usize] {
                     outs.push(k);
                     break;
