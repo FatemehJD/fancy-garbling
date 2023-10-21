@@ -50,7 +50,7 @@ impl<C: AbstractChannel> Evaluator<C> {
                 }
             }
         }
-        println!("evaluator.rs: left: {:?}, right: {:?}", self.output_wires.len(), outs.len());
+        //println!("evaluator.rs: left: {:?}, right: {:?}", self.output_wires.len(), outs.len());
         if self.output_wires.len() != outs.len() {
             return Err(EvaluatorError::DecodingFailed);
         }
